@@ -1,0 +1,37 @@
+{
+  "name": "volumechecker",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Local onchain price and flow research dashboard using CoinGecko market data.",
+  "type": "module",
+  "packageManager": "pnpm@10.34.6",
+  "engines": {
+    "node": ">=24.21.0 <25",
+    "pnpm": ">=10.34.6 <11"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --filter @volumechecker/server --filter @volumechecker/web dev",
+    "build": "pnpm --filter @volumechecker/web build && pnpm --filter @volumechecker/server build",
+    "start": "node scripts/start.mjs",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "smoke": "node scripts/smoke.mjs",
+    "check:dev-proxy": "node scripts/dev-proxy-check.mjs",
+    "start:server": "node apps/server/dist/server.js"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "24.19.0",
+    "@volumechecker/coingecko": "workspace:*",
+    "@volumechecker/shared": "workspace:*",
+    "esbuild": "0.28.2",
+    "eslint": "10.11.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.12.0",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.0",
+    "vitest": "5.0.2"
+  }
+}

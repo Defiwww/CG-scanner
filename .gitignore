@@ -1,0 +1,58 @@
+# Dependencies and build output
+node_modules/
+dist/
+*.tsbuildinfo
+coverage/
+playwright-report/
+test-results/
+
+# Secrets: only .env.example is committed
+.env
+.env.*
+!.env.example
+
+# Local runtime data (SQLite, WAL files, raw NDJSON)
+data/*
+!data/.gitkeep
+
+# Evidence artifacts stay local by default; the manifest is versioned
+evidence/captures/*
+!evidence/captures/.gitkeep
+evidence/sessions/*
+!evidence/sessions/.gitkeep
+
+# OS / editor
+.DS_Store
+*.log
+
+# Local pnpm store created by review tooling
+.pnpm-store/
+
+# Local assistant settings
+.claude/
+
+# Python local deployment helper bytecode
+__pycache__/
+
+# Private credentials and exports, regardless of directory
+secrets/
+credentials*.json
+*credentials*.yaml
+*credentials*.yml
+ngrok.yml
+ngrok.yaml
+*.pem
+*.key
+*.p12
+*.pfx
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.db
+*.db-*
+*.bak
+.envrc
+
+# Local dashboard settings, release staging and per-user market data
+.local/
+release/

@@ -1,0 +1,24 @@
+{
+  "name": "@volumechecker/server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --clear-screen=false src/server.ts",
+    "build": "node build.mjs",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@fastify/static": "10.1.5",
+    "@volumechecker/coingecko": "workspace:*",
+    "@volumechecker/engine": "workspace:*",
+    "@volumechecker/shared": "workspace:*",
+    "@volumechecker/storage": "workspace:*",
+    "better-sqlite3": "13.0.3",
+    "decimal.js": "10.6.0",
+    "fastify": "5.12.5",
+    "pino": "10.3.1",
+    "ws": "8.22.0",
+    "zod": "4.6.5"
+  }
+}

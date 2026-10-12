@@ -1,0 +1,34 @@
+import { distributionRisk } from './scoring-v1';
+import Decimal from 'decimal.js';
+import type { AppConfig, MetricsSnapshot, RiskSnapshot, ScoreComponent } from '@volumechecker/shared';
+const d=(x:Decimal.Value)=>new Decimal(x);
+export function calculateRisk(m:MetricsSnapshot,c:AppConfig,healthy:boolean):RiskSnapshot {
+ if(c.scoring.algorithm==='distribution-v1')return distributionRisk(m,c,healthy);
+ const w=m.windows.find(w=>w.minutes===c.scoring.currentWindowMinutes)!;
+ const val=(name:string)=>w.metrics[name]?.value??null,base=(name:string)=>m.baseline.metrics[name]?.value??null;
+ const inputs=[val('sellShare'),m.comparisons.deterioration?.value??null,val('largeSellShare'),m.comparisons.buyerSizeDecline?.value??null,val('reserveChange')===null?null:d(val('reserveChange')!).neg().toString()];
+ const names=['Sell dominance','Flow deterioration','Large sell concentration','Buyer size decline','USD reserve decline'];
+ const settings=[c.scoring.components.sellDominance,c.scoring.components.flowDeterioration,c.scoring.components.largeSellConcentration,c.scoring.components.buyerSizeDecline,c.scoring.components.usdReserveDecline];
+ const components:ScoreComponent[]=inputs.map((v,i)=>{const s=settings[i]!;const severity=v===null?null:Decimal.min(1,Decimal.max(0,d(v).minus(s.ramp.a).div(d(s.ramp.b).minus(s.ramp.a))));return {name:names[i]!,input:v,severity:severity?.toString()??null,contribution:severity?.mul(s.weight).toString()??'0',weight:s.weight,reason:v===null?'Unavailable; no substituted value and no reweighting':`clamp((input − ${s.ramp.a}) / (${s.ramp.b} − ${s.ramp.a}), 0, 1)`};});
+ const covered=[w,m.baseline].every(w=>w.readiness==='ready'||w.readiness==='no_trades');
+ const score=covered&&components.slice(0,4).every(x=>x.severity!==null)?components.reduce((a,x)=>a.plus(x.contribution),d(0)).toDecimalPlaces(0,Decimal.ROUND_HALF_UP).toNumber():null;
+ const gates:RiskSnapshot['gates']=[];
+ const gate=(name:string,pass:boolean,actual:unknown,required:unknown)=>gates.push({name,pass,actual:String(actual??'unavailable'),required:String(required)});
+ const ge=(name:string,v:string|null,min:number)=>gate(name,v!==null&&d(v).gte(min),v,`≥ ${min}`);
+ gate('Coverage',covered,m.status,'full current + baseline, no gaps');gate('Collection quality',healthy,healthy?'healthy':'stale/degraded','current canonical REST checkpoint and healthy storage');
+ ge('Current trades',d(val('buyCount')??0).plus(val('sellCount')??0).toString(),c.alerts.minTradesCurrent);ge('Baseline trades',d(base('buyCount')??0).plus(base('sellCount')??0).toString(),c.alerts.minTradesBaseline);
+ ge('Current buys',val('buyCount'),c.alerts.minBuysEachWindow);ge('Baseline buys',base('buyCount'),c.alerts.minBuysEachWindow);ge('Current sells',val('sellCount'),c.alerts.minSellsCurrent);
+ ge('Price change 5m (%)',val('priceChange'),c.alerts.minPriceChangePct);
+ gate('Imbalance',val('imbalance')!==null&&d(val('imbalance')!).lte(c.alerts.maxImbalance),val('imbalance'),`≤ ${c.alerts.maxImbalance}`);
+ ge('Deterioration',m.comparisons.deterioration?.value??null,c.alerts.minDeterioration);
+ if(base('sellRate')!==null&&d(base('sellRate')!).eq(0))ge('Sell rate with zero baseline',val('sellRate'),c.alerts.minSellRateUsdPerMinWhenBaselineZero);
+ else ge('Sell rate ratio',m.comparisons.sellRateRatio?.value??null,c.alerts.minSellRateRatio);
+ ge('Score',score===null?null:String(score),c.alerts.minScore);
+ const qualifying=components.slice(0,4).filter(x=>x.severity!==null&&d(x.severity).gte(c.alerts.qualifyingSeverity)).length;
+ ge('Qualifying flow components',String(qualifying),c.alerts.minQualifyingFlowComponents);
+ const sampleReady=gates.filter(g=>['Current trades','Baseline trades','Current buys','Baseline buys','Current sells'].includes(g.name)).every(g=>g.pass);
+ const state=!healthy?'Last calculated score':score===null?(covered?'Insufficient data':'Warming up'):!sampleReady?'Insufficient sample':c.scoring.states.find(x=>score>=x.min&&score<=x.max)!.name;
+ const f=(v:string|null,suffix='')=>v===null?'unavailable':`${d(v).toFixed(2)}${suffix}`;
+ const explanation=`5m: buys $${f(val('buyUsd'))}, sells $${f(val('sellUsd'))}; sell share ${val('sellShare')===null?'unavailable':f(d(val('sellShare')!).mul(100).toString(),'%')}. Price change ${f(val('priceChange'),'%')}. Sell intensity versus the preceding 10m: ${f(m.comparisons.sellRateRatio?.value??null,'×')}. Large sells: ${val('largeSellShare')===null?'unavailable':f(d(val('largeSellShare')!).mul(100).toString(),'% of sell USD')}. Median buy $${f(val('medianBuy'))} versus $${f(base('medianBuy'))}. USD reserve change ${f(val('reserveChange'),'%')} (valuation, not proof of liquidity withdrawal). ${sampleReady?'':'Alert sample minima are not met. '}This is a risk signal, not a price prediction.`;
+ return {score,state,provisional:c.approval.status!=='approved',activeMaxWeight:components.filter(x=>x.severity!==null).reduce((a,x)=>a+x.weight,0),components,gates,explanation,asOf:m.asOf};
+}

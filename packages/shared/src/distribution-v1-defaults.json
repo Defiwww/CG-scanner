@@ -1,0 +1,116 @@
+{
+  "sellDominance": {
+    "belowPoints": 0,
+    "abovePoints": 25,
+    "segments": [
+      {
+        "min": 0.55,
+        "max": 0.65,
+        "from": 5,
+        "to": 10
+      },
+      {
+        "min": 0.65,
+        "max": 0.75,
+        "from": 10,
+        "to": 18
+      },
+      {
+        "min": 0.75,
+        "max": 0.85,
+        "from": 18,
+        "to": 23
+      }
+    ]
+  },
+  "flowDeterioration": [
+    {
+      "threshold": 1.2,
+      "inclusive": true,
+      "points": 5
+    },
+    {
+      "threshold": 1.5,
+      "inclusive": true,
+      "points": 10
+    },
+    {
+      "threshold": 2,
+      "inclusive": true,
+      "points": 15
+    },
+    {
+      "threshold": 3,
+      "inclusive": false,
+      "points": 20
+    }
+  ],
+  "sellerConcentration": [
+    {
+      "threshold": 0.25,
+      "inclusive": true,
+      "points": 5
+    },
+    {
+      "threshold": 0.4,
+      "inclusive": true,
+      "points": 10
+    },
+    {
+      "threshold": 0.55,
+      "inclusive": true,
+      "points": 15
+    },
+    {
+      "threshold": 0.7,
+      "inclusive": false,
+      "points": 20
+    }
+  ],
+  "buyerDeterioration": [
+    {
+      "threshold": 0.15,
+      "inclusive": true,
+      "points": 3
+    },
+    {
+      "threshold": 0.3,
+      "inclusive": true,
+      "points": 6
+    },
+    {
+      "threshold": 0.5,
+      "inclusive": false,
+      "points": 10
+    }
+  ],
+  "divergence": {
+    "flatPricePct": 0.1,
+    "minSellShare": 0.55,
+    "strongSellShare": 0.65,
+    "extremeSellShare": 0.75,
+    "minSellRateRatio": 1.2,
+    "strongSellRateRatio": 1.5,
+    "extremeSellRateRatio": 2,
+    "minDeteriorationExclusive": 0,
+    "extremeDeterioration": 0.1,
+    "weakPoints": 5,
+    "strongPoints": 15,
+    "flatWeakPoints": 10,
+    "flatStrongPoints": 20,
+    "extremePoints": 25
+  },
+  "confirmation": {
+    "minActiveCategories": 2,
+    "maxCheckpointGapMultiplier": 2,
+    "fastScore": 85,
+    "fastComponents": [
+      "Sell dominance",
+      "Seller concentration"
+    ]
+  },
+  "sellers": {
+    "minIdentityCoverage": 0.8,
+    "repeatedSellCount": 2
+  }
+}

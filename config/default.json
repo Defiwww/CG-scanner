@@ -1,0 +1,312 @@
+{
+  "schemaVersion": 2,
+  "configVersion": "distribution-v1-2026-10-06",
+  "approval": {
+    "status": "approved",
+    "approvedBy": "Project maintainer",
+    "approvedAt": "2026-10-06T11:38:55Z",
+    "approvedContentHash": "d0ed8254bf2422ea51a723d18267edcefc9dc3530a97426a173ff549c8bdbe5f",
+    "note": "Versioned reference settings; the startup wizard asks each user for their own alert opt-in."
+  },
+  "pool": {
+    "selectedPoolId": "eth:0xa6cc3c2531fdaa6ae1a3ca84c2855806728693e8"
+  },
+  "provider": {
+    "restBaseUrl": "https://pro-api.coingecko.com/api/v3",
+    "wsUrl": "wss://stream.coingecko.com/v1",
+    "requestTimeoutMs": 10000
+  },
+  "polling": {
+    "poolSnapshotIntervalSec": 30,
+    "reconciliationIntervalSec": 60,
+    "reconciliationOverlapSec": 120,
+    "reconnectGapOverlapSec": 120,
+    "metricsRecomputeIntervalSec": 5
+  },
+  "backfill": {
+    "targetMinutes": 120,
+    "readinessMinutes": 15,
+    "tradesPerPage": 300,
+    "tradingPeriod": "1d",
+    "maxPagesPerRun": 10,
+    "ohlcvLimit": 180
+  },
+  "freshness": {
+    "maxPriceAgeSec": 90,
+    "maxReserveAgeSec": 90,
+    "wsPingIntervalSec": 10,
+    "wsPongTimeoutSec": 20
+  },
+  "retry": {
+    "backoffSec": [
+      1,
+      2,
+      4,
+      8,
+      16,
+      30
+    ],
+    "jitterFraction": 0.2
+  },
+  "budget": {
+    "maxRestRequestsPerMinute": 30,
+    "maxRestRequestsPerSession": 500,
+    "maxEstimatedCreditsPerSession": 2000,
+    "wsCreditsPerResponse": 0.1,
+    "warningFraction": 0.8,
+    "followupReserveRestRequests": 50
+  },
+  "reconciliation": {
+    "amountRelativeTolerance": 0.000001,
+    "volumeUsdRelativeTolerance": 0.01,
+    "timeToleranceSec": 120
+  },
+  "metrics": {
+    "windowsMinutes": [
+      1,
+      5,
+      15,
+      60
+    ],
+    "volatilityMinClosedCandles": 5
+  },
+  "scoring": {
+    "currentWindowMinutes": 5,
+    "baselineWindowMinutes": 10,
+    "largeTrade": {
+      "minimumUsd": 10000,
+      "quantile": 0.9,
+      "lookbackMinutes": 60,
+      "minBaselineTrades": 50
+    },
+    "components": {
+      "sellDominance": {
+        "weight": 25,
+        "ramp": {
+          "a": 0.5,
+          "b": 0.75
+        }
+      },
+      "flowDeterioration": {
+        "weight": 20,
+        "ramp": {
+          "a": 0.1,
+          "b": 0.5
+        }
+      },
+      "largeSellConcentration": {
+        "weight": 20,
+        "ramp": {
+          "a": 0.25,
+          "b": 0.7
+        }
+      },
+      "buyerSizeDecline": {
+        "weight": 10,
+        "ramp": {
+          "a": 0.1,
+          "b": 0.5
+        }
+      },
+      "usdReserveDecline": {
+        "weight": 0,
+        "ramp": {
+          "a": 0.5,
+          "b": 3
+        }
+      },
+      "priceFlowDivergence": {
+        "weight": 25,
+        "ramp": {
+          "a": 0,
+          "b": 1
+        }
+      }
+    },
+    "states": [
+      {
+        "name": "Normal",
+        "min": 0,
+        "max": 29
+      },
+      {
+        "name": "Caution",
+        "min": 30,
+        "max": 49
+      },
+      {
+        "name": "Distribution Watch",
+        "min": 50,
+        "max": 69
+      },
+      {
+        "name": "Distribution Confirmed",
+        "min": 70,
+        "max": 84
+      },
+      {
+        "name": "High-Risk Distribution",
+        "min": 85,
+        "max": 100
+      }
+    ],
+    "algorithm": "distribution-v1",
+    "v1": {
+      "sellDominance": {
+        "belowPoints": 0,
+        "abovePoints": 25,
+        "segments": [
+          {
+            "min": 0.55,
+            "max": 0.65,
+            "from": 5,
+            "to": 10
+          },
+          {
+            "min": 0.65,
+            "max": 0.75,
+            "from": 10,
+            "to": 18
+          },
+          {
+            "min": 0.75,
+            "max": 0.85,
+            "from": 18,
+            "to": 23
+          }
+        ]
+      },
+      "flowDeterioration": [
+        {
+          "threshold": 1.2,
+          "inclusive": true,
+          "points": 5
+        },
+        {
+          "threshold": 1.5,
+          "inclusive": true,
+          "points": 10
+        },
+        {
+          "threshold": 2,
+          "inclusive": true,
+          "points": 15
+        },
+        {
+          "threshold": 3,
+          "inclusive": false,
+          "points": 20
+        }
+      ],
+      "sellerConcentration": [
+        {
+          "threshold": 0.25,
+          "inclusive": true,
+          "points": 5
+        },
+        {
+          "threshold": 0.4,
+          "inclusive": true,
+          "points": 10
+        },
+        {
+          "threshold": 0.55,
+          "inclusive": true,
+          "points": 15
+        },
+        {
+          "threshold": 0.7,
+          "inclusive": false,
+          "points": 20
+        }
+      ],
+      "buyerDeterioration": [
+        {
+          "threshold": 0.15,
+          "inclusive": true,
+          "points": 3
+        },
+        {
+          "threshold": 0.3,
+          "inclusive": true,
+          "points": 6
+        },
+        {
+          "threshold": 0.5,
+          "inclusive": false,
+          "points": 10
+        }
+      ],
+      "divergence": {
+        "flatPricePct": 0.1,
+        "minSellShare": 0.55,
+        "strongSellShare": 0.65,
+        "extremeSellShare": 0.75,
+        "minSellRateRatio": 1.2,
+        "strongSellRateRatio": 1.5,
+        "extremeSellRateRatio": 2,
+        "minDeteriorationExclusive": 0,
+        "extremeDeterioration": 0.1,
+        "weakPoints": 5,
+        "strongPoints": 15,
+        "flatWeakPoints": 10,
+        "flatStrongPoints": 20,
+        "extremePoints": 25
+      },
+      "confirmation": {
+        "minActiveCategories": 2,
+        "maxCheckpointGapMultiplier": 2,
+        "fastScore": 85,
+        "fastComponents": [
+          "Sell dominance",
+          "Seller concentration"
+        ]
+      },
+      "sellers": {
+        "minIdentityCoverage": 0.8,
+        "repeatedSellCount": 2
+      }
+    }
+  },
+  "alerts": {
+    "liveAlertsEnabled": true,
+    "minScore": 70,
+    "minTradesCurrent": 20,
+    "minTradesBaseline": 20,
+    "minBuysEachWindow": 5,
+    "minSellsCurrent": 5,
+    "minPriceChangePct": -0.3,
+    "maxImbalance": -0.2,
+    "minDeterioration": 0.1,
+    "minSellRateRatio": 1.2,
+    "minSellRateUsdPerMinWhenBaselineZero": 1000,
+    "minQualifyingFlowComponents": 2,
+    "qualifyingSeverity": 0.5,
+    "confirmationSec": 60,
+    "confirmationMinNewTrades": 3,
+    "confirmationMinNewSells": 2,
+    "cooldownMinutes": 20,
+    "recoveryScoreBelow": 50,
+    "recoveryMinutes": 2,
+    "preAlertContextMinutes": 15
+  },
+  "outcomes": {
+    "horizonsMinutes": [
+      5,
+      15,
+      60,
+      240
+    ],
+    "candleIntervalMinutes": 1,
+    "maxObservationOffsetSec": 60,
+    "evaluation": {
+      "status": "proposed",
+      "horizonMinutes": 60,
+      "declineThresholdPct": -1
+    }
+  },
+  "ui": {
+    "displayTimeZone": "Asia/Dubai",
+    "riskDisclaimer": "This is a risk signal, not a price prediction."
+  }
+}

@@ -2,6 +2,15 @@
 
 A local research dashboard for price/flow divergence in an onchain liquidity pool. CoinGecko provides market data; this app computes its own uncalibrated risk score. It does not trade or predict returns.
 
+## CoinGecko links
+
+- [CoinGecko API](https://www.coingecko.com/en/api?utm_content=defi_warhol)
+- [API pricing](https://www.coingecko.com/en/api/pricing?utm_content=defi_warhol)
+- [API documentation](https://docs.coingecko.com/?utm_content=defi_warhol)
+- [Keyless API limits](https://docs.coingecko.com/docs/keyless-public-api?utm_content=defi_warhol)
+
+CoinGecko supplies the data. VolumeChecker computes the metrics and risk scores. CoinGecko branding belongs to its owner.
+
 ## Install and run
 
 Requirements: Node.js 24.21 or later in the 24.x line, pnpm 10.34.6 or later in the 10.x line, and your own CoinGecko Pro API key with access to the onchain REST and WebSocket services. A free Demo key is not a substitute for Pro/WS access.
